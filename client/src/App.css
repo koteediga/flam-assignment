@@ -1,0 +1,204 @@
+:root {
+  --bg: #0f1115;
+  --card: #1a1d24;
+  --border: #2a2e37;
+  --text: #eef0f3;
+  --muted: #9aa1ad;
+  --accent: #6c8cff;
+  --accent-dark: #4e6bd8;
+  --danger: #ff6b6b;
+  --radius: 14px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.app-header h1 {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+}
+.app-header p {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.prompt-form {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.prompt-input {
+  width: 100%;
+  resize: vertical;
+  min-height: 90px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.prompt-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.char-count {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+button:hover:not(:disabled) { background: var(--accent-dark); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
+
+.app-main { margin-top: 24px; }
+
+.state-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.error-state { color: var(--danger); }
+.error-state button { margin-top: 12px; }
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  margin: 0 auto 12px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.result-topic {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+  color: var(--muted);
+}
+
+.view-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.view-toggle button {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+.view-toggle button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.deck-progress {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.flashcard {
+  width: 100%;
+  min-height: 200px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  cursor: pointer;
+  text-align: center;
+}
+.flashcard.is-flipped { border-color: var(--accent); }
+.flashcard-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.flashcard-text {
+  font-size: 1.15rem;
+  line-height: 1.4;
+}
+.flashcard-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.deck-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+}
+.deck-nav button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.quiz, .quiz-summary {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 20px;
+  text-align: center;
+}
+.quiz-question { font-size: 1.1rem; margin-bottom: 16px; }
+.quiz-answer {
+  background: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.quiz-judge { display: flex; gap: 10px; justify-content: center; }
+.quiz-judge button:last-child { background: transparent; border: 1px solid var(--border); }
+
+.quiz-summary h3 { margin-top: 0; }
+.quiz-summary button { margin: 6px; }
+
+@media (max-width: 420px) {
+  .app { padding: 16px 12px 48px; }
+  .flashcard { min-height: 160px; padding: 18px; }
+}
