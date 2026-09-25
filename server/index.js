@@ -7,8 +7,26 @@ app.use(cors());
 app.use(express.json({ limit: '100kb' }));
 
 const PORT = process.env.PORT || 8787;
-const MODEL = process.env.MODEL || 'meta-llama/llama-3.1-8b-instruct:free';
-const API_KEY = process.env.OPENROUTER_API_KEY;
+const MODEL = process.env.MODEL || 'gpt-4o-mini';
+
+// Both providers speak the same OpenAI-style chat-completions format, so
+// swapping providers is just a base URL + key + model change, nothing else.
+const PROVIDER = (process.env.PROVIDER || 'openrouter').toLowerCase();
+const PROVIDERS = {
+  openrouter: {
+    url: 'https://openrouter.ai/api/v1/chat/completions',
+    key: process.env.OPENROUTER_API_KEY,
+  },
+  openai: {
+    url: 'https://api.openai.com/v1/chat/completions',
+    key: process.env.OPENAI_API_KEY,
+  },
+  gemini: {
+    url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+    key: process.env.GEMINI_API_KEY,
+  },
+};
+const { url: PROVIDER_URL, key: API_KEY } = PROVIDERS[PROVIDER] || PROVIDERS.openrouter;
 
 // Everything the model needs to know about the shape we require lives here,
 // in one place, so the prompt and the client-side validator can't drift apart.
@@ -38,7 +56,7 @@ app.post('/api/generate', async (req, res) => {
     return res.status(400).json({ error: 'input too long (max 4000 chars)' });
   }
   if (!API_KEY) {
-    return res.status(500).json({ error: 'server is missing OPENROUTER_API_KEY' });
+    return res.status(500).json({ error: `server is missing the API key for provider "${PROVIDER}"` });
   }
 
   // Bail out on a stuck upstream call rather than letting the client hang forever.
@@ -46,7 +64,7 @@ app.post('/api/generate', async (req, res) => {
   const timeout = setTimeout(() => controller.abort(), 25_000);
 
   try {
-    const upstream = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const upstream = await fetch(PROVIDER_URL, {
       method: 'POST',
       signal: controller.signal,
       headers: {
@@ -93,4 +111,6 @@ app.post('/api/generate', async (req, res) => {
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
-app.listen(PORT, () => console.log(`Server listening on http://localhost:${PORT}`));
+app.listen(PORT, () =>
+  console.log(`Server listening on http://localhost:${PORT} (provider: ${PROVIDER}, model: ${MODEL})`)
+);
