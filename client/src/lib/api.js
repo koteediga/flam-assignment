@@ -3,9 +3,15 @@
  * Returns the raw string the model produced; parsing/validation happens
  * separately in validateResult.js so the two concerns stay easy to reason
  * about on their own.
+ *
+ * VITE_API_URL is unset in local dev, so this falls back to a relative path
+ * that Vite's dev proxy forwards to localhost:8787 (see vite.config.js).
+ * In production (Vercel), VITE_API_URL points at the deployed Render backend.
  */
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 export async function generateFlashcards(input, { signal } = {}) {
-  const res = await fetch('/api/generate', {
+  const res = await fetch(`${API_BASE}/api/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ input }),
