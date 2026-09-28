@@ -30,20 +30,23 @@ const { url: PROVIDER_URL, key: API_KEY } = PROVIDERS[PROVIDER] || PROVIDERS.ope
 
 // Everything the model needs to know about the shape we require lives here,
 // in one place, so the prompt and the client-side validator can't drift apart.
-const SYSTEM_PROMPT = `You turn a study topic or pasted notes into flashcards.
+const SYSTEM_PROMPT = `You turn a study topic or pasted notes into multiple-choice flashcards.
 Return ONLY valid JSON. No markdown fences, no commentary, no leading or trailing text.
 
 Shape (exactly this, nothing extra):
 {
   "topic": string,
   "cards": [
-    { "question": string, "answer": string }
+    { "question": string, "answer": string, "options": [string, string, string, string] }
   ]
 }
 
 Rules:
-- 5 to 10 cards.
+- 5 to 8 cards.
 - Each question and answer must be non-empty and self-contained (no "see above").
+- Keep each answer to one short sentence, under 140 characters.
+- "options" has exactly 4 strings. Exactly one is identical to "answer". The other three are plausible but clearly wrong, similar in length and style to the answer.
+- Never use "all of the above", "none of the above", or "both A and B".
 - If the input is too short or nonsensical to make real cards from, return { "topic": "", "cards": [] } instead of inventing filler.`;
 
 app.post('/api/generate', async (req, res) => {

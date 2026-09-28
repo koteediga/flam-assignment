@@ -1,64 +1,72 @@
 import { useMemo, useState } from 'react';
 
+function shuffle(list) {
+  const copy = [...list];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
 /**
- * A self-graded quiz: the user reveals the answer and judges themselves
- * (open-ended Q&A doesn't lend itself to auto-grading without asking the
- * model to also invent multiple-choice distractors, which we skipped to
- * keep the core solid). Wrong answers roll into a "retest" round.
+ * Multiple-choice quiz. Options are shuffled here rather than trusting the
+ * order the model returned, so the right answer isn't always in one slot.
+ * Wrong answers collect into a "retest" round.
  */
 export default function QuizView({ cards }) {
   const [round, setRound] = useState(cards);
+  const [runKey, setRunKey] = useState(0);
   const [index, setIndex] = useState(0);
-  const [revealed, setRevealed] = useState(false);
+  const [selected, setSelected] = useState(null);
   const [wrong, setWrong] = useState([]);
   const [finished, setFinished] = useState(false);
 
-  const current = round[index];
-  const total = round.length;
+  const questions = useMemo(
+    () => round.map((card) => ({ ...card, options: shuffle(card.options) })),
+    [round, runKey]
+  );
 
-  function mark(isCorrect) {
-    if (!isCorrect) setWrong((w) => [...w, current]);
-    setRevealed(false);
+  const total = questions.length;
+  const current = questions[index];
+  const answered = selected !== null;
 
-    if (index + 1 < total) {
-      setIndex((i) => i + 1);
-    } else {
-      setFinished(true);
-    }
+  function choose(option) {
+    if (answered) return;
+    setSelected(option);
+    if (option !== current.answer) setWrong((w) => [...w, cards.find((c) => c.id === current.id)]);
   }
 
-  function retestWrong() {
-    setRound(wrong);
+  function next() {
+    setSelected(null);
+    if (index + 1 < total) setIndex((i) => i + 1);
+    else setFinished(true);
+  }
+
+  function startRound(nextRound) {
+    setRound(nextRound);
+    setRunKey((k) => k + 1);
     setWrong([]);
     setIndex(0);
-    setRevealed(false);
+    setSelected(null);
     setFinished(false);
   }
-
-  function restartAll() {
-    setRound(cards);
-    setWrong([]);
-    setIndex(0);
-    setRevealed(false);
-    setFinished(false);
-  }
-
-  const correctCount = useMemo(() => total - wrong.length, [total, wrong]);
 
   if (finished) {
+    const correct = total - wrong.length;
     return (
       <div className="quiz-summary">
         <h3>
-          Round complete: {correctCount}/{total} correct
+          You got {correct} of {total} right
         </h3>
         {wrong.length > 0 ? (
-          <button type="button" onClick={retestWrong}>
-            Retest {wrong.length} wrong answer{wrong.length > 1 ? 's' : ''}
+          <button type="button" onClick={() => startRound(wrong)}>
+            Retest {wrong.length} missed question{wrong.length > 1 ? 's' : ''}
           </button>
         ) : (
-          <p>All correct — nice work.</p>
+          <p className="quiz-note">Perfect round. Nothing left to retest.</p>
         )}
-        <button type="button" className="secondary" onClick={restartAll}>
+        <button type="button" className="secondary" onClick={() => startRound(cards)}>
           Restart full quiz
         </button>
       </div>
@@ -72,23 +80,40 @@ export default function QuizView({ cards }) {
       </p>
       <div className="quiz-question">{current.question}</div>
 
-      {revealed ? (
-        <>
-          <div className="quiz-answer">{current.answer}</div>
-          <div className="quiz-judge">
-            <button type="button" onClick={() => mark(true)}>
-              I got it right
+      <ul className="options">
+        {current.options.map((option, i) => {
+          const isCorrect = option === current.answer;
+          const isChosen = option === selected;
+          let state = '';
+          if (answered) state = isCorrect ? 'correct' : isChosen ? 'wrong' : 'dim';
+          return (
+            <li key={option}>
+              <button
+                type="button"
+                className={`option ${state}`}
+                onClick={() => choose(option)}
+                disabled={answered}
+              >
+                <span className="option-key">{String.fromCharCode(65 + i)}</span>
+                <span className="option-text">{option}</span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="quiz-feedback" aria-live="polite">
+        {answered && (
+          <>
+            <p className={selected === current.answer ? 'is-correct' : 'is-wrong'}>
+              {selected === current.answer ? 'Correct.' : 'Not quite. The right answer is highlighted.'}
+            </p>
+            <button type="button" onClick={next}>
+              {index + 1 < total ? 'Next question' : 'See results'}
             </button>
-            <button type="button" className="secondary" onClick={() => mark(false)}>
-              I got it wrong
-            </button>
-          </div>
-        </>
-      ) : (
-        <button type="button" onClick={() => setRevealed(true)}>
-          Reveal answer
-        </button>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

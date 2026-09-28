@@ -232,20 +232,50 @@ button.secondary:hover:not(:disabled) { background: rgba(255, 255, 255, 0.06); }
   line-height: 1.4;
   margin-bottom: 20px;
 }
-.quiz-answer {
-  background: rgba(74, 222, 128, 0.08);
-  border: 1px solid rgba(74, 222, 128, 0.35);
+.options { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 10px; }
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--glass);
+  border: 1px solid var(--line);
   border-radius: 14px;
-  padding: 16px 18px;
-  margin-bottom: 20px;
 }
-.quiz-judge { display: flex; gap: 10px; flex-wrap: wrap; }
-.quiz-judge button:last-child {
-  background: transparent;
-  border: 1px solid rgba(255, 123, 123, 0.6);
-  color: var(--danger);
+.option:hover:not(:disabled) { background: rgba(255, 255, 255, 0.09); border-color: rgba(255, 255, 255, 0.28); }
+.option:disabled { opacity: 1; cursor: default; }
+.option-key {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-dim);
 }
-.quiz-judge button:last-child:hover { background: rgba(255, 123, 123, 0.1); }
+.option.correct { background: rgba(74, 222, 128, 0.14); border-color: rgba(74, 222, 128, 0.7); }
+.option.correct .option-key { background: var(--green); border-color: var(--green); color: #07110b; }
+.option.wrong { background: rgba(255, 123, 123, 0.1); border-color: rgba(255, 123, 123, 0.7); }
+.option.wrong .option-key { background: var(--danger); border-color: var(--danger); color: #07110b; }
+.option.dim { opacity: 0.5; }
+
+.quiz-feedback { min-height: 48px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.quiz-feedback p { margin: 0; font-size: 0.95rem; }
+.quiz-feedback .is-correct { color: var(--green); }
+.quiz-feedback .is-wrong { color: var(--danger); }
+.quiz-note { color: var(--text-dim); margin: 0 0 16px; }
+
+
+
 
 .quiz-summary h3 { margin: 0 0 16px; font-weight: 400; font-size: 1.4rem; }
 .quiz-summary button { margin: 0 8px 8px 0; }
