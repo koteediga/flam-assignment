@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import HeroArt from './components/HeroArt.jsx';
 import PromptInput from './components/PromptInput.jsx';
 import LoadingState from './components/LoadingState.jsx';
 import ErrorState from './components/ErrorState.jsx';
@@ -47,12 +48,34 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>Study Assistant</h1>
-        <p>Paste notes or a topic. Get flashcards you can flip through — or quiz yourself.</p>
-      </header>
+      <nav className="topbar">
+        <svg className="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect x="9" y="3" width="18" height="22" rx="5" fill="none" stroke="#4ade80" strokeOpacity="0.45" />
+          <rect x="5" y="7" width="18" height="22" rx="5" fill="#0d2114" stroke="#4ade80" />
+        </svg>
+        <span>Study Assistant</span>
+      </nav>
 
-      <PromptInput onSubmit={runGeneration} disabled={status === 'loading'} />
+      <section className="hero">
+        <div className="hero-copy">
+          <header className="app-header">
+            <h1>
+              <span>Notes in.</span>
+              <span className="h1-accent">Flashcards out.</span>
+            </h1>
+            <p>Paste notes or type a topic. Flip through the cards, then quiz yourself and retest what you missed.</p>
+          </header>
+
+          <PromptInput onSubmit={runGeneration} disabled={status === 'loading'} />
+
+          <ol className="steps">
+            <li><b>1</b> Add a topic or notes</li>
+            <li><b>2</b> Flip through the cards</li>
+            <li><b>3</b> Quiz and retest</li>
+          </ol>
+        </div>
+        <HeroArt />
+      </section>
 
       <main className="app-main">
         {status === 'idle' && <EmptyState />}
